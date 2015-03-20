@@ -10,8 +10,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.internal.verification.VerificationModeFactory;
-import org.mockito.verification.VerificationMode;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -59,7 +57,7 @@ public class NewsLoaderTest {
 		assertThat(publishableNews.getSubscribentContent().size(), is(4));
 		assertThat(publishableNews.getPublicContent().size(), is(2));
 	}
-	
+
 	@Test
 	public final void testLoadNews_newsFaktoryReaderIsInvokedWithProperParameter() throws Exception {
 		// given
@@ -75,10 +73,9 @@ public class NewsLoaderTest {
 		Mockito.when(configurationLoader.loadConfiguration()).thenReturn(configuration);
 		Mockito.when(NewsReaderFactory.getReader(Mockito.anyString())).thenReturn(newsReader);
 
-		
 		Mockito.when(configuration.getReaderType()).thenReturn("OWN_TYPE");
 		PowerMockito.whenNew(NewsReaderFactory.class).withNoArguments().thenReturn(newsReaderFactory);
-		
+
 		// then
 		NewsLoader newsLoader = new NewsLoader();
 		PublishableNews publishableNews = newsLoader.loadNews();
