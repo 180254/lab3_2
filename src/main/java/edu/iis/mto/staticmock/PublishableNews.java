@@ -1,6 +1,7 @@
 package edu.iis.mto.staticmock;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PublishableNews {
@@ -19,7 +20,14 @@ public class PublishableNews {
 
 	public void addForSubscription(String content, SubsciptionType subscriptionType) {
 		// TODO Auto-generated method stub
-		
 	}
 
+	public List<String> getPublicContent() {
+		return Collections.unmodifiableList(publicContent);
+	}
+
+	public List<String> getSubscribentContent() {
+		return Collections.unmodifiableList(subscribentContent);
+	}
+	
 }
