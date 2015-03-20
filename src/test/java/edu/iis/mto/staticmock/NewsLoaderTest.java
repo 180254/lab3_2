@@ -3,10 +3,7 @@ package edu.iis.mto.staticmock;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -20,37 +17,29 @@ import edu.iis.mto.staticmock.reader.NewsReader;
 @PrepareForTest({ ConfigurationLoader.class, NewsReaderFactory.class })
 public class NewsLoaderTest {
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
+	NewsReaderFactory newsReaderFactory;
+	ConfigurationLoader configurationLoader;
+	Configuration configuration;
+	NewsReader newsReader;
 
 	@Before
 	public void setUp() throws Exception {
-	}
+		// given
+		PowerMockito.mockStatic(ConfigurationLoader.class);
+		PowerMockito.mockStatic(NewsReaderFactory.class);
+		newsReaderFactory = Mockito.mock(NewsReaderFactory.class);
+		configurationLoader = Mockito.mock(ConfigurationLoader.class);
+		configuration = Mockito.mock(Configuration.class);
+		newsReader = new FakeNewsReader();
 
-	@After
-	public void tearDown() throws Exception {
+		// static when
+		Mockito.when(ConfigurationLoader.getInstance()).thenReturn(configurationLoader);
+		Mockito.when(configurationLoader.loadConfiguration()).thenReturn(configuration);
+		Mockito.when(NewsReaderFactory.getReader(Mockito.anyString())).thenReturn(newsReader);
 	}
 
 	@Test
 	public final void testLoadNews_areIncomingNewsProperlySegragated() {
-		// given
-		PowerMockito.mockStatic(ConfigurationLoader.class);
-		PowerMockito.mockStatic(NewsReaderFactory.class);
-		ConfigurationLoader configurationLoader = Mockito.mock(ConfigurationLoader.class);
-		Configuration configuration = Mockito.mock(Configuration.class);
-
-		NewsReader newsReader = new FakeNewsReader();
-
-		// when
-		Mockito.when(ConfigurationLoader.getInstance()).thenReturn(configurationLoader);
-		Mockito.when(configurationLoader.loadConfiguration()).thenReturn(configuration);
-		Mockito.when(NewsReaderFactory.getReader(Mockito.anyString())).thenReturn(newsReader);
-
 		// then
 		NewsLoader newsLoader = new NewsLoader();
 		PublishableNews publishableNews = newsLoader.loadNews();
@@ -60,27 +49,15 @@ public class NewsLoaderTest {
 
 	@Test
 	public final void testLoadNews_newsFaktoryReaderIsInvokedWithProperParameter() throws Exception {
-		// given
-		PowerMockito.mockStatic(ConfigurationLoader.class);
-		PowerMockito.mockStatic(NewsReaderFactory.class);
-		NewsReaderFactory newsReaderFactory = Mockito.mock(NewsReaderFactory.class);
-		ConfigurationLoader configurationLoader = Mockito.mock(ConfigurationLoader.class);
-		Configuration configuration = Mockito.mock(Configuration.class);
-		NewsReader newsReader = new FakeNewsReader();
-
+		final String OWN_READER_TEST_TYPE = "OWN_TYPE";
 		// when
-		Mockito.when(ConfigurationLoader.getInstance()).thenReturn(configurationLoader);
-		Mockito.when(configurationLoader.loadConfiguration()).thenReturn(configuration);
-		Mockito.when(NewsReaderFactory.getReader(Mockito.anyString())).thenReturn(newsReader);
-
-		Mockito.when(configuration.getReaderType()).thenReturn("OWN_TYPE");
+		Mockito.when(configuration.getReaderType()).thenReturn(OWN_READER_TEST_TYPE);
 		PowerMockito.whenNew(NewsReaderFactory.class).withNoArguments().thenReturn(newsReaderFactory);
 
 		// then
-		NewsLoader newsLoader = new NewsLoader();
-		PublishableNews publishableNews = newsLoader.loadNews();
+		new NewsLoader().loadNews();
 		PowerMockito.verifyStatic();
-		NewsReaderFactory.getReader("OWN_TYPE");
+		NewsReaderFactory.getReader(OWN_READER_TEST_TYPE);
 
 	}
 
